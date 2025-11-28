@@ -23,8 +23,22 @@ class PostController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'author' => 'required|string|max:255',
+            'type' => 'required|in:jurnal,konferensi,hakki',
+            'authors' => 'required|array',
+            'authors.*' => 'string',
+            'journal_name' => 'nullable|string|max:255',
+            'conference_name' => 'nullable|string|max:255',
+            'hakki_type' => 'nullable|string|max:255',
+            'publisher' => 'nullable|string|max:255',
+            'year' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
+            'volume' => 'nullable|string|max:50',
+            'issue' => 'nullable|string|max:50',
+            'pages' => 'nullable|string|max:50',
+            'doi' => 'nullable|string|max:255',
+            'isbn' => 'nullable|string|max:255',
+            'status' => 'nullable|in:draft,submitted,accepted,published',
+            'description' => 'nullable|string',
+            'link' => 'nullable|url|max:500',
             'tags' => 'nullable|array',
         ]);
 
@@ -59,8 +73,22 @@ class PostController extends Controller
 
         $validated = $request->validate([
             'title' => 'sometimes|string|max:255',
-            'content' => 'sometimes|string',
-            'author' => 'sometimes|string|max:255',
+            'type' => 'sometimes|in:jurnal,konferensi,hakki',
+            'authors' => 'sometimes|array',
+            'authors.*' => 'string',
+            'journal_name' => 'nullable|string|max:255',
+            'conference_name' => 'nullable|string|max:255',
+            'hakki_type' => 'nullable|string|max:255',
+            'publisher' => 'nullable|string|max:255',
+            'year' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
+            'volume' => 'nullable|string|max:50',
+            'issue' => 'nullable|string|max:50',
+            'pages' => 'nullable|string|max:50',
+            'doi' => 'nullable|string|max:255',
+            'isbn' => 'nullable|string|max:255',
+            'status' => 'nullable|in:draft,submitted,accepted,published',
+            'description' => 'nullable|string',
+            'link' => 'nullable|url|max:500',
             'tags' => 'nullable|array',
         ]);
 
