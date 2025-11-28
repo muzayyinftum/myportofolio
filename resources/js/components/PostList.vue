@@ -1,9 +1,7 @@
 <template>
-  <div class="post-container">
-    <h2>Posts</h2>
-    
+  <div class="post-container">    
     <!-- Form untuk membuat post baru -->
-    <div class="post-form">
+    <div v-if="isFormVisible" class="post-form">
       <h3>Tambah Post Baru</h3>
       <form @submit.prevent="createPost">
         <div>
@@ -28,7 +26,12 @@
 
     <!-- Daftar posts -->
     <div class="posts-list">
-      <h3>Daftar Posts</h3>
+        <div class="posts-list-header" style="margin-bottom: 20px;">
+            <h3>Daftar Posts</h3>
+            <button class="submit-button" @click="toggleForm" v-if="!isFormVisible">Tambah Post Baru</button>
+            <button class="submit-button" @click="toggleForm" v-if="isFormVisible">Tutup Form</button>
+        </div>
+        
       <div v-if="loading" class="loading">Memuat...</div>
       <div v-else-if="posts.length === 0" class="empty">Belum ada posts</div>
       <div v-else class="posts">
@@ -58,7 +61,7 @@ const newPost = ref({
   content: '',
   author: '',
 });
-
+const isFormVisible = ref(false);
 const fetchPosts = async () => {
   loading.value = true;
   try {
@@ -70,6 +73,10 @@ const fetchPosts = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const toggleForm = () => {
+  isFormVisible.value = !isFormVisible.value;
 };
 
 const createPost = async () => {
@@ -244,6 +251,16 @@ onMounted(() => {
 
 .delete-btn:hover {
   background: #c82333;
+}
+
+.submit-button {
+  background: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
 }
 </style>
 
