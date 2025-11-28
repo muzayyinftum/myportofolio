@@ -1,6 +1,6 @@
 <template>
   <div class="post-container">
-    <h2>MongoDB Posts</h2>
+    <h2>Posts</h2>
     
     <!-- Form untuk membuat post baru -->
     <div class="post-form">
@@ -32,14 +32,14 @@
       <div v-if="loading" class="loading">Memuat...</div>
       <div v-else-if="posts.length === 0" class="empty">Belum ada posts</div>
       <div v-else class="posts">
-        <div v-for="post in posts" :key="post._id" class="post-item">
+        <div v-for="post in posts" :key="post.id" class="post-item">
           <h4>{{ post.title }}</h4>
           <p>{{ post.content }}</p>
           <small>Oleh: {{ post.author }}</small>
           <div v-if="post.tags && post.tags.length > 0" class="tags">
             <span v-for="tag in post.tags" :key="tag" class="tag">{{ tag }}</span>
           </div>
-          <button @click="deletePost(post._id)" class="delete-btn">Hapus</button>
+          <button @click="deletePost(post.id)" class="delete-btn">Hapus</button>
         </div>
       </div>
     </div>
@@ -98,6 +98,12 @@ const createPost = async () => {
 };
 
 const deletePost = async (id) => {
+  if (!id) {
+    console.error('Post ID tidak ditemukan');
+    alert('Error: Post ID tidak ditemukan');
+    return;
+  }
+  
   if (!confirm('Yakin ingin menghapus post ini?')) return;
   
   loading.value = true;
@@ -107,7 +113,8 @@ const deletePost = async (id) => {
     alert('Post berhasil dihapus!');
   } catch (error) {
     console.error('Error deleting post:', error);
-    alert('Gagal menghapus post');
+    console.error('Post ID:', id);
+    alert('Gagal menghapus post: ' + (error.response?.data?.message || error.message));
   } finally {
     loading.value = false;
   }
