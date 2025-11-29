@@ -23,3 +23,15 @@ Route::apiResource('posts', \App\Http\Controllers\PostController::class);
 
 // Portal Nilai - login dengan NIM + password
 Route::post('/portal/login', [\App\Http\Controllers\StudentPortalController::class, 'login']);
+
+// Admin Portal - login admin
+Route::post('/admin/login', [\App\Http\Controllers\StudentPortalController::class, 'loginAdmin']);
+
+// Admin Portal - get all students (perlu header X-Admin-Auth)
+Route::get('/admin/students', [\App\Http\Controllers\StudentPortalController::class, 'getAllStudents']);
+
+// Admin Portal - create mahasiswa baru
+Route::post('/admin/students', [\App\Http\Controllers\StudentPortalController::class, 'createStudent']);
+
+// Admin Portal - update nilai mahasiswa
+Route::put('/admin/students/{id}', [\App\Http\Controllers\StudentPortalController::class, 'updateNilai']);

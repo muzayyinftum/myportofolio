@@ -39,4 +39,122 @@ class StudentPortalController extends Controller
             'nilai_huruf' => $student->nilai_huruf,
         ]);
     }
+
+    /**
+     * API: Login admin dengan NIM dan password khusus
+     */
+    public function loginAdmin(Request $request)
+    {
+        $credentials = $request->validate([
+            'nim' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        // Cek kredensial admin khusus
+        if ($credentials['nim'] === '202407199804091068' && $credentials['password'] === 'hasyahanin2025') {
+            return response()->json([
+                'message' => 'Login admin berhasil',
+                'is_admin' => true,
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'NIM atau password admin salah',
+        ], 401);
+    }
+
+    /**
+     * API: Get semua data mahasiswa (hanya untuk admin)
+     */
+    public function getAllStudents(Request $request)
+    {
+        // Validasi admin (sederhana, bisa ditingkatkan dengan session/token)
+        $isAdmin = $request->header('X-Admin-Auth') === 'hasyahanin2025';
+        
+        if (!$isAdmin) {
+            return response()->json([
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
+        $students = Student::orderBy('nama', 'asc')->get();
+        
+        return response()->json($students);
+    }
+
+    /**
+     * API: Create mahasiswa baru (hanya untuk admin)
+     */
+    public function createStudent(Request $request)
+    {
+        // Validasi admin
+        $isAdmin = $request->header('X-Admin-Auth') === 'hasyahanin2025';
+        
+        if (!$isAdmin) {
+            return response()->json([
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'nim' => 'required|string|unique:students,nim',
+            'nama' => 'required|string|max:255',
+            'kelas' => 'required|string|max:50',
+            'password' => 'required|string',
+            'nilai_sikap' => 'nullable|numeric|min:0|max:100',
+            'nilai_uts' => 'nullable|numeric|min:0|max:100',
+            'nilai_uas' => 'nullable|numeric|min:0|max:100',
+            'nilai_tugas_akhir' => 'nullable|numeric|min:0|max:100',
+            'nilai_partisipatif' => 'nullable|numeric|min:0|max:100',
+        ]);
+
+        $student = Student::create($validated);
+
+        // Calculate nilai akhir dan nilai huruf jika ada nilai
+        if ($student->nilai_sikap || $student->nilai_uts || $student->nilai_uas || 
+            $student->nilai_tugas_akhir || $student->nilai_partisipatif) {
+            $student->calculateNilai();
+        }
+
+        return response()->json([
+            'message' => 'Mahasiswa berhasil ditambahkan',
+            'student' => $student,
+        ], 201);
+    }
+
+    /**
+     * API: Update nilai mahasiswa (hanya untuk admin)
+     */
+    public function updateNilai(Request $request, $id)
+    {
+        // Validasi admin
+        $isAdmin = $request->header('X-Admin-Auth') === 'hasyahanin2025';
+        
+        if (!$isAdmin) {
+            return response()->json([
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
+        $student = Student::findOrFail($id);
+
+        $validated = $request->validate([
+            'nilai_sikap' => 'nullable|numeric|min:0|max:100',
+            'nilai_uts' => 'nullable|numeric|min:0|max:100',
+            'nilai_uas' => 'nullable|numeric|min:0|max:100',
+            'nilai_tugas_akhir' => 'nullable|numeric|min:0|max:100',
+            'nilai_partisipatif' => 'nullable|numeric|min:0|max:100',
+        ]);
+
+        // Update nilai
+        $student->update($validated);
+
+        // Recalculate nilai akhir dan nilai huruf
+        $student->calculateNilai();
+
+        return response()->json([
+            'message' => 'Nilai berhasil diupdate',
+            'student' => $student,
+        ]);
+    }
 }
