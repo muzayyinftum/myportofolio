@@ -136,3 +136,4 @@ Setelah update phpMyAdmin, test:
 4. Klik table `posts`
 5. Data harus muncul tanpa error
 
+

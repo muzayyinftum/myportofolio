@@ -145,3 +145,4 @@ Kemudian edit `database/seeders/PostSeeder.php` dan jalankan:
 php artisan db:seed --class=PostSeeder
 ```
 
+

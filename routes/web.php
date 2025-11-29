@@ -17,9 +17,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/posts', function () {
-    return view('vue');
-});
+Route::get('/posts', function () { return view('vue'); });
+Route::get('/portal_nilai', function () { return view('portal_nilai'); });
 
 // Admin route untuk melihat data posts
 Route::get('/admin/posts', function () {

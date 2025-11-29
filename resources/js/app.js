@@ -3,6 +3,7 @@ import './bootstrap';
 import { createApp } from 'vue';
 import App from './components/App.vue';
 import PostList from './components/PostList.vue';
+import PortalNilai from './components/PortalNilai.vue';
 
 // Mount App component (default)
 const appElement = document.getElementById('app');
@@ -14,4 +15,10 @@ if (appElement) {
 const postListElement = document.getElementById('post-list');
 if (postListElement) {
     createApp(PostList).mount('#post-list');
+}
+
+// Mount Portal Nilai
+const portalNilaiElement = document.getElementById('portal-nilai-root');
+if (portalNilaiElement) {
+    createApp(PortalNilai).mount('#portal-nilai-root');
 }

@@ -232,3 +232,4 @@ Buka: `http://localhost:8000/api/posts`
 
 Buka: `http://localhost/phpmyadmin` → Pilih database → Klik table `posts`
 
+

@@ -20,3 +20,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Posts Routes
 Route::apiResource('posts', \App\Http\Controllers\PostController::class);
+
+// Portal Nilai - login dengan NIM + password
+Route::post('/portal/login', [\App\Http\Controllers\StudentPortalController::class, 'login']);
