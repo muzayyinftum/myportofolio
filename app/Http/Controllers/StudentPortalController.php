@@ -157,4 +157,52 @@ class StudentPortalController extends Controller
             'student' => $student,
         ]);
     }
+
+    /**
+     * API: Delete mahasiswa (hanya untuk admin)
+     */
+    public function deleteStudent($id)
+    {
+        // Validasi admin
+        $isAdmin = request()->header('X-Admin-Auth') === 'hasyahanin2025';
+        
+        if (!$isAdmin) {
+            return response()->json([
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
+        $student = Student::findOrFail($id);
+        $student->delete();
+
+        return response()->json([
+            'message' => 'Mahasiswa berhasil dihapus',
+        ]);
+    }
+
+    /**
+     * API: Delete multiple mahasiswa (hanya untuk admin)
+     */
+    public function deleteMultipleStudents(Request $request)
+    {
+        // Validasi admin
+        $isAdmin = $request->header('X-Admin-Auth') === 'hasyahanin2025';
+        
+        if (!$isAdmin) {
+            return response()->json([
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'required|integer|exists:students,id',
+        ]);
+
+        Student::whereIn('id', $validated['ids'])->delete();
+
+        return response()->json([
+            'message' => count($validated['ids']) . ' mahasiswa berhasil dihapus',
+        ]);
+    }
 }

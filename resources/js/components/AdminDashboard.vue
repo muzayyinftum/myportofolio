@@ -248,7 +248,7 @@
           <input
             v-model="studentSearch"
             type="text"
-            placeholder="🔍 Cari berdasarkan nama mahasiswa..."
+            placeholder="🔍 Cari berdasarkan nama atau kelas mahasiswa..."
             class="search-input"
           />
           <span class="count-badge">Total: {{ filteredStudents.length }} mahasiswa</span>
@@ -319,30 +319,131 @@
 
         <!-- Students Table -->
         <div class="table-container">
+          <div v-if="selectedStudents.length > 0" class="bulk-actions">
+            <span class="selected-count">✅ {{ selectedStudents.length }} mahasiswa dipilih</span>
+            <button @click="deleteSelectedStudents" class="btn-delete-bulk">🗑️ Hapus Selected</button>
+            <button @click="clearSelection" class="btn-cancel">❌ Batal</button>
+          </div>
           <table class="data-table">
             <thead>
               <tr>
-                <th>NIM</th>
-                <th>Nama</th>
-                <th>Kelas</th>
-                <th>Sikap</th>
-                <th>UTS</th>
-                <th>UAS</th>
-                <th>Tugas Akhir</th>
-                <th>Partisipatif</th>
-                <th>Nilai Akhir</th>
-                <th>Nilai Huruf</th>
+                <th style="width: 50px;">
+                  <input 
+                    type="checkbox" 
+                    :checked="isAllSelected" 
+                    @change="toggleSelectAll"
+                    class="checkbox-select-all"
+                  />
+                </th>
+                <th @click="sortBy('nim')" class="sortable-header">
+                  NIM
+                  <span class="sort-icon">
+                    <span v-if="sortField === 'nim'">
+                      {{ sortDirection === 'asc' ? '↑' : '↓' }}
+                    </span>
+                    <span v-else class="sort-placeholder">⇅</span>
+                  </span>
+                </th>
+                <th @click="sortBy('nama')" class="sortable-header">
+                  Nama
+                  <span class="sort-icon">
+                    <span v-if="sortField === 'nama'">
+                      {{ sortDirection === 'asc' ? '↑' : '↓' }}
+                    </span>
+                    <span v-else class="sort-placeholder">⇅</span>
+                  </span>
+                </th>
+                <th @click="sortBy('kelas')" class="sortable-header">
+                  Kelas
+                  <span class="sort-icon">
+                    <span v-if="sortField === 'kelas'">
+                      {{ sortDirection === 'asc' ? '↑' : '↓' }}
+                    </span>
+                    <span v-else class="sort-placeholder">⇅</span>
+                  </span>
+                </th>
+                <th @click="sortBy('nilai_sikap')" class="sortable-header">
+                  Sikap
+                  <span class="sort-icon">
+                    <span v-if="sortField === 'nilai_sikap'">
+                      {{ sortDirection === 'asc' ? '↑' : '↓' }}
+                    </span>
+                    <span v-else class="sort-placeholder">⇅</span>
+                  </span>
+                </th>
+                <th @click="sortBy('nilai_uts')" class="sortable-header">
+                  UTS
+                  <span class="sort-icon">
+                    <span v-if="sortField === 'nilai_uts'">
+                      {{ sortDirection === 'asc' ? '↑' : '↓' }}
+                    </span>
+                    <span v-else class="sort-placeholder">⇅</span>
+                  </span>
+                </th>
+                <th @click="sortBy('nilai_uas')" class="sortable-header">
+                  UAS
+                  <span class="sort-icon">
+                    <span v-if="sortField === 'nilai_uas'">
+                      {{ sortDirection === 'asc' ? '↑' : '↓' }}
+                    </span>
+                    <span v-else class="sort-placeholder">⇅</span>
+                  </span>
+                </th>
+                <th @click="sortBy('nilai_tugas_akhir')" class="sortable-header">
+                  Tugas Akhir
+                  <span class="sort-icon">
+                    <span v-if="sortField === 'nilai_tugas_akhir'">
+                      {{ sortDirection === 'asc' ? '↑' : '↓' }}
+                    </span>
+                    <span v-else class="sort-placeholder">⇅</span>
+                  </span>
+                </th>
+                <th @click="sortBy('nilai_partisipatif')" class="sortable-header">
+                  Partisipatif
+                  <span class="sort-icon">
+                    <span v-if="sortField === 'nilai_partisipatif'">
+                      {{ sortDirection === 'asc' ? '↑' : '↓' }}
+                    </span>
+                    <span v-else class="sort-placeholder">⇅</span>
+                  </span>
+                </th>
+                <th @click="sortBy('nilai_akhir')" class="sortable-header">
+                  Nilai Akhir
+                  <span class="sort-icon">
+                    <span v-if="sortField === 'nilai_akhir'">
+                      {{ sortDirection === 'asc' ? '↑' : '↓' }}
+                    </span>
+                    <span v-else class="sort-placeholder">⇅</span>
+                  </span>
+                </th>
+                <th @click="sortBy('nilai_huruf')" class="sortable-header">
+                  Nilai Huruf
+                  <span class="sort-icon">
+                    <span v-if="sortField === 'nilai_huruf'">
+                      {{ sortDirection === 'asc' ? '↑' : '↓' }}
+                    </span>
+                    <span v-else class="sort-placeholder">⇅</span>
+                  </span>
+                </th>
                 <th>Aksi</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="loadingStudents">
-                <td colspan="11" class="loading-cell">Memuat data...</td>
+                <td colspan="12" class="loading-cell">Memuat data...</td>
               </tr>
               <tr v-else-if="filteredStudents.length === 0">
-                <td colspan="11" class="empty-cell">Tidak ada data mahasiswa</td>
+                <td colspan="12" class="empty-cell">Tidak ada data mahasiswa</td>
               </tr>
-              <tr v-else v-for="student in filteredStudents" :key="student.id">
+              <tr v-else v-for="student in filteredStudents" :key="student.id" :class="{ 'row-selected': isStudentSelected(student.id) }">
+                <td>
+                  <input 
+                    type="checkbox" 
+                    :checked="isStudentSelected(student.id)"
+                    @change="toggleStudentSelection(student.id)"
+                    class="checkbox-row"
+                  />
+                </td>
                 <td>{{ student.nim }}</td>
                 <td>{{ student.nama }}</td>
                 <td>{{ student.kelas }}</td>
@@ -366,8 +467,10 @@
                 <td v-else>
                   <input v-model.number="editStudentForm.nilai_partisipatif" type="number" min="0" max="100" class="edit-input" />
                 </td>
-                <td><strong>{{ student.nilai_akhir ?? '-' }}</strong></td>
-                <td><strong class="grade-badge" :class="getGradeClass(student.nilai_huruf)">{{ student.nilai_huruf ?? '-' }}</strong></td>
+                <td><strong v-if="student.nama!='Admin'">{{ student.nilai_akhir ?? '-' }}</strong></td>
+                <td>
+                  <strong v-if="student.nama!='Admin'" class="grade-badge" :class="getGradeClass(student.nilai_huruf)">{{ student.nilai_huruf ?? '-' }}</strong>
+                </td>
                 <td>
                   <div v-if="editingStudentId !== student.id" class="action-buttons">
                     <button @click="startEditStudent(student)" class="btn-edit">✏️ Edit</button>
@@ -421,6 +524,9 @@ const studentSearch = ref('');
 const showCreateStudentForm = ref(false);
 const createStudentError = ref('');
 const editingStudentId = ref(null);
+const selectedStudents = ref([]);
+const sortField = ref(null);
+const sortDirection = ref('asc'); // 'asc' or 'desc'
 const createStudentForm = ref({
   nim: '', nama: '', kelas: '', password: '',
   nilai_sikap: null, nilai_uts: null, nilai_uas: null,
@@ -441,12 +547,55 @@ const filteredPublications = computed(() => {
 });
 
 const filteredStudents = computed(() => {
-  if (!studentSearch.value) return students.value;
-  const query = studentSearch.value.toLowerCase();
-  return students.value.filter(student =>
-    student.nama.toLowerCase().includes(query)
-  );
+  let result = [...students.value];
+  
+  // Filter by search (nama or kelas)
+  if (studentSearch.value) {
+    const query = studentSearch.value.toLowerCase();
+    result = result.filter(student =>
+      student.nama.toLowerCase().includes(query) ||
+      student.kelas.toLowerCase().includes(query)
+    );
+  }
+  
+  // Sort
+  if (sortField.value) {
+    result.sort((a, b) => {
+      let aVal = a[sortField.value];
+      let bVal = b[sortField.value];
+      
+      // Handle null/undefined values
+      if (aVal == null) aVal = '';
+      if (bVal == null) bVal = '';
+      
+      // Handle numeric values
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        return sortDirection.value === 'asc' ? aVal - bVal : bVal - aVal;
+      }
+      
+      // Handle string values
+      aVal = String(aVal).toLowerCase();
+      bVal = String(bVal).toLowerCase();
+      
+      if (sortDirection.value === 'asc') {
+        return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+      } else {
+        return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
+      }
+    });
+  }
+  
+  return result;
 });
+
+const isAllSelected = computed(() => {
+  return filteredStudents.value.length > 0 && 
+         filteredStudents.value.every(s => selectedStudents.value.includes(s.id));
+});
+
+const isStudentSelected = (studentId) => {
+  return selectedStudents.value.includes(studentId);
+};
 
 // Login functions
 const login = async () => {
@@ -456,6 +605,9 @@ const login = async () => {
     const response = await axios.post('/api/admin/login', loginForm.value);
     if (response.data.is_admin) {
       isLoggedIn.value = true;
+      // Save login state to localStorage
+      localStorage.setItem('adminLoggedIn', 'true');
+      localStorage.setItem('adminNIM', loginForm.value.nim);
       await Promise.all([fetchPublications(), fetchStudents()]);
     }
   } catch (error) {
@@ -472,6 +624,12 @@ const logout = () => {
   publicationSearch.value = '';
   studentSearch.value = '';
   editingStudentId.value = null;
+  selectedStudents.value = [];
+  sortField.value = null;
+  sortDirection.value = 'asc';
+  // Clear login state from localStorage
+  localStorage.removeItem('adminLoggedIn');
+  localStorage.removeItem('adminNIM');
 };
 
 // Publication functions
@@ -665,6 +823,79 @@ const saveEditStudent = async (studentId) => {
   }
 };
 
+const toggleSelectAll = () => {
+  if (isAllSelected.value) {
+    // Unselect all filtered students
+    filteredStudents.value.forEach(student => {
+      const index = selectedStudents.value.indexOf(student.id);
+      if (index > -1) {
+        selectedStudents.value.splice(index, 1);
+      }
+    });
+  } else {
+    // Select all filtered students
+    filteredStudents.value.forEach(student => {
+      if (!selectedStudents.value.includes(student.id)) {
+        selectedStudents.value.push(student.id);
+      }
+    });
+  }
+};
+
+const toggleStudentSelection = (studentId) => {
+  const index = selectedStudents.value.indexOf(studentId);
+  if (index > -1) {
+    selectedStudents.value.splice(index, 1);
+  } else {
+    selectedStudents.value.push(studentId);
+  }
+};
+
+const clearSelection = () => {
+  selectedStudents.value = [];
+};
+
+const deleteSelectedStudents = async () => {
+  if (selectedStudents.value.length === 0) return;
+  
+  const count = selectedStudents.value.length;
+  if (!confirm(`Yakin ingin menghapus ${count} mahasiswa yang dipilih?`)) return;
+  
+  loading.value = true;
+  try {
+    await axios.delete('/api/admin/students', {
+      data: { ids: selectedStudents.value },
+      headers: { 'X-Admin-Auth': 'hasyahanin2025' }
+    });
+    
+    // Remove deleted students from the list
+    selectedStudents.value.forEach(id => {
+      const index = students.value.findIndex(s => s.id === id);
+      if (index > -1) {
+        students.value.splice(index, 1);
+      }
+    });
+    
+    selectedStudents.value = [];
+    alert(`${count} mahasiswa berhasil dihapus!`);
+  } catch (error) {
+    alert('Gagal menghapus mahasiswa: ' + (error.response?.data?.message || error.message));
+  } finally {
+    loading.value = false;
+  }
+};
+
+const sortBy = (field) => {
+  if (sortField.value === field) {
+    // Toggle direction if same field
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    // New field, default to ascending
+    sortField.value = field;
+    sortDirection.value = 'asc';
+  }
+};
+
 // Helper functions
 const formatAuthors = (authors) => {
   if (!authors || !Array.isArray(authors)) return '-';
@@ -686,8 +917,30 @@ const getGradeClass = (grade) => {
   return classes[grade] || '';
 };
 
+// Check if user is already logged in on component mount
+const checkLoginStatus = async () => {
+  const savedLoginState = localStorage.getItem('adminLoggedIn');
+  if (savedLoginState === 'true') {
+    // User was logged in, restore session
+    isLoggedIn.value = true;
+    loading.value = true;
+    try {
+      // Fetch data to restore session
+      await Promise.all([fetchPublications(), fetchStudents()]);
+    } catch (error) {
+      // If fetch fails, user might not be authenticated anymore
+      console.error('Error restoring session:', error);
+      localStorage.removeItem('adminLoggedIn');
+      localStorage.removeItem('adminNIM');
+      isLoggedIn.value = false;
+    } finally {
+      loading.value = false;
+    }
+  }
+};
+
 onMounted(() => {
-  // Check if already logged in (optional)
+  checkLoginStatus();
 });
 </script>
 
@@ -948,6 +1201,29 @@ onMounted(() => {
   font-size: 14px;
 }
 
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  transition: background-color 0.2s;
+}
+
+.sortable-header:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.sort-icon {
+  margin-left: 8px;
+  font-size: 12px;
+  display: inline-block;
+  min-width: 16px;
+}
+
+.sort-placeholder {
+  opacity: 0.5;
+  font-size: 10px;
+}
+
 .data-table td {
   padding: 12px 15px;
   border-bottom: 1px solid #eee;
@@ -955,6 +1231,14 @@ onMounted(() => {
 
 .data-table tbody tr:hover {
   background: #f8f9fa;
+}
+
+.data-table tbody tr.row-selected {
+  background: #e3f2fd;
+}
+
+.data-table tbody tr.row-selected:hover {
+  background: #bbdefb;
 }
 
 .loading-cell,
@@ -1076,6 +1360,48 @@ onMounted(() => {
 }
 
 .btn-delete:hover {
+  background: #c82333;
+}
+
+/* Checkbox Styles */
+.checkbox-select-all,
+.checkbox-row {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #667eea;
+}
+
+/* Bulk Actions */
+.bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: #e3f2fd;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border: 2px solid #667eea;
+}
+
+.selected-count {
+  font-weight: 600;
+  color: #1976d2;
+  font-size: 14px;
+}
+
+.btn-delete-bulk {
+  padding: 10px 20px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.btn-delete-bulk:hover {
   background: #c82333;
 }
 

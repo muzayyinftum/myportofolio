@@ -35,3 +35,9 @@ Route::post('/admin/students', [\App\Http\Controllers\StudentPortalController::c
 
 // Admin Portal - update nilai mahasiswa
 Route::put('/admin/students/{id}', [\App\Http\Controllers\StudentPortalController::class, 'updateNilai']);
+
+// Admin Portal - delete mahasiswa
+Route::delete('/admin/students/{id}', [\App\Http\Controllers\StudentPortalController::class, 'deleteStudent']);
+
+// Admin Portal - delete multiple mahasiswa
+Route::delete('/admin/students', [\App\Http\Controllers\StudentPortalController::class, 'deleteMultipleStudents']);
