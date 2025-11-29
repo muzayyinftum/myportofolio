@@ -5,6 +5,7 @@ import App from './components/App.vue';
 import PostList from './components/PostList.vue';
 import PortalNilai from './components/PortalNilai.vue';
 import AdminPortal from './components/AdminPortal.vue';
+import AdminDashboard from './components/AdminDashboard.vue';
 
 // Mount App component (default)
 const appElement = document.getElementById('app');
@@ -24,8 +25,14 @@ if (portalNilaiElement) {
     createApp(PortalNilai).mount('#portal-nilai-root');
 }
 
-// Mount Admin Portal
+// Mount Admin Portal (old)
 const adminRootElement = document.getElementById('admin-root');
 if (adminRootElement) {
     createApp(AdminPortal).mount('#admin-root');
+}
+
+// Mount Admin Dashboard (new - combined)
+const adminDashboardRootElement = document.getElementById('admin-dashboard-root');
+if (adminDashboardRootElement) {
+    createApp(AdminDashboard).mount('#admin-dashboard-root');
 }
