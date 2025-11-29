@@ -1130,7 +1130,7 @@ onMounted(() => {
 /* Navbar Styles */
 .navbar {
   background: white;
-  padding: 0 30px;
+  padding: 0 60px 0 30px;
   height: 70px;
   display: flex;
   align-items: center;
