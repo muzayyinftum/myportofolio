@@ -23,26 +23,52 @@
 
     <!-- Admin Dashboard -->
     <div v-else class="admin-dashboard">
-      <div class="dashboard-header">
-        <h1>📊 Admin Dashboard</h1>
-        <button @click="logout" class="btn-logout">Keluar</button>
-      </div>
+      <!-- Sidebar -->
+      <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
+        <div class="sidebar-header">
+          <h2 v-if="!sidebarCollapsed">📊 Admin</h2>
+          <button @click="toggleSidebar" class="btn-toggle-sidebar">
+            {{ sidebarCollapsed ? '☰' : '✕' }}
+          </button>
+        </div>
+        <nav class="sidebar-nav">
+          <button 
+            @click="activeTab = 'publications'" 
+            :class="['nav-item', { active: activeTab === 'publications' }]"
+          >
+            <span class="nav-icon">📄</span>
+            <span v-if="!sidebarCollapsed" class="nav-text">Kelola Publikasi</span>
+          </button>
+          <button 
+            @click="activeTab = 'students'" 
+            :class="['nav-item', { active: activeTab === 'students' }]"
+          >
+            <span class="nav-icon">👥</span>
+            <span v-if="!sidebarCollapsed" class="nav-text">Kelola Nilai Mahasiswa</span>
+          </button>
+        </nav>
+      </aside>
 
-      <!-- Tabs Navigation -->
-      <div class="tabs-nav">
-        <button 
-          @click="activeTab = 'publications'" 
-          :class="['tab-button', { active: activeTab === 'publications' }]"
-        >
-          📄 Kelola Publikasi
-        </button>
-        <button 
-          @click="activeTab = 'students'" 
-          :class="['tab-button', { active: activeTab === 'students' }]"
-        >
-          👥 Kelola Nilai Mahasiswa
-        </button>
-      </div>
+      <!-- Main Content Area -->
+      <div class="main-content">
+        <!-- Navbar -->
+        <nav class="navbar">
+          <div class="navbar-left">
+            <h1 class="navbar-title">Dashboard Admin</h1>
+          </div>
+          <div class="navbar-right">
+            <div class="user-info">
+              <span class="user-name">Admin</span>
+              <button @click="logout" class="btn-logout-nav">
+                <span>🚪</span>
+                <span>Keluar</span>
+              </button>
+            </div>
+          </div>
+        </nav>
+
+        <!-- Content -->
+        <div class="content-wrapper">
 
       <!-- Tab Content: Publications -->
       <div v-if="activeTab === 'publications'" class="tab-content">
@@ -485,6 +511,8 @@
           </table>
         </div>
       </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -501,6 +529,7 @@ const loginForm = ref({ nim: '', password: '' });
 
 // Tab state
 const activeTab = ref('publications');
+const sidebarCollapsed = ref(false);
 
 // Publications state
 const publications = ref([]);
@@ -896,6 +925,10 @@ const sortBy = (field) => {
   }
 };
 
+const toggleSidebar = () => {
+  sidebarCollapsed.value = !sidebarCollapsed.value;
+};
+
 // Helper functions
 const formatAuthors = (authors) => {
   if (!authors || !Array.isArray(authors)) return '-';
@@ -946,8 +979,280 @@ onMounted(() => {
 
 <style scoped>
 .admin-container {
+  width: 100%;
   min-height: 100vh;
   background: #f5f5f5;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Admin Dashboard Layout */
+.admin-dashboard {
+  display: flex;
+  width: 100vw;
+  min-height: 100vh;
+  background: #f5f7fa;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  max-width: 260px;
+  background: #2196F3;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  transition: width 0.3s ease, min-width 0.3s ease, max-width 0.3s ease;
+  position: fixed;
+  height: 100vh;
+  z-index: 1000;
+  overflow-y: auto;
+  left: 0;
+  top: 0;
+  flex-shrink: 0;
+}
+
+.sidebar.collapsed {
+  width: 70px;
+  min-width: 70px;
+  max-width: 70px;
+}
+
+.sidebar-header {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.sidebar-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.btn-toggle-sidebar {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background 0.2s;
+}
+
+.btn-toggle-sidebar:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+.sidebar-nav {
+  padding: 20px 0;
+  flex: 1;
+}
+
+.nav-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 500;
+  gap: 12px;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.nav-item.active {
+  background: rgba(255,255,255,0.2);
+  border-left: 4px solid white;
+  font-weight: 600;
+}
+
+.nav-icon {
+  font-size: 20px;
+  min-width: 24px;
+  display: inline-block;
+}
+
+.nav-text {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar.collapsed .nav-text {
+  display: none;
+}
+
+.sidebar.collapsed .sidebar-header h2 {
+  display: none;
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  margin-left: 260px;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.3s ease;
+  min-height: 100vh;
+  margin-top: 0;
+  margin-right: 0;
+  margin-bottom: 0;
+  padding: 0;
+  width: calc(100vw - 260px);
+  box-sizing: border-box;
+}
+
+.sidebar.collapsed ~ .main-content {
+  margin-left: 70px;
+  width: calc(100vw - 70px);
+}
+
+/* Navbar Styles */
+.navbar {
+  background: white;
+  padding: 0 30px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #555;
+  font-size: 14px;
+}
+
+.btn-logout-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.btn-logout-nav:hover {
+  background: #c82333;
+}
+
+/* Content Wrapper */
+.content-wrapper {
+  flex: 1;
+  padding: 30px 30px 30px 0px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: calc(100vh - 70px);
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  background: #f5f7fa;
+  max-width: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+  }
+  
+  .sidebar.collapsed {
+    width: 0;
+    min-width: 0;
+    max-width: 0;
+    overflow: hidden;
+  }
+  
+  .main-content {
+    margin-left: 70px;
+    width: calc(100vw - 70px);
+  }
+  
+  .sidebar.collapsed ~ .main-content {
+    margin-left: 0;
+    width: 100vw;
+  }
+  
+  .navbar {
+    padding: 0 15px;
+  }
+  
+  .navbar-title {
+    font-size: 18px;
+  }
+  
+  .content-wrapper {
+    padding: 15px;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .user-name {
+    display: none;
+  }
 }
 
 /* Login Styles */
@@ -1039,29 +1344,6 @@ onMounted(() => {
   text-align: center;
 }
 
-/* Dashboard Styles */
-.admin-dashboard {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 30px;
-}
-
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  background: white;
-  padding: 20px 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.dashboard-header h1 {
-  margin: 0;
-  color: #333;
-  font-size: 28px;
-}
 
 .btn-logout {
   padding: 10px 20px;
@@ -1077,58 +1359,28 @@ onMounted(() => {
   background: #c82333;
 }
 
-/* Tabs Navigation */
-.tabs-nav {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 30px;
-  background: white;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.tab-button {
-  flex: 1;
-  padding: 15px 30px;
-  border: 2px solid #ddd;
-  background: white;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  transition: all 0.3s;
-}
-
-.tab-button:hover {
-  background: #f8f9fa;
-  border-color: #667eea;
-}
-
-.tab-button.active {
-  background: #667eea;
-  color: white;
-  border-color: #667eea;
-}
-
 /* Tab Content */
 .tab-content {
   background: white;
+  border-radius: 12px;
   padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
 }
 
 .section-header h2 {
   margin: 0;
+  font-size: 28px;
   color: #333;
+  font-weight: 700;
 }
 
 .search-section {
